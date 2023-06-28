@@ -15,6 +15,12 @@ with open("index.html", "r") as file:
     src = file.read()
 
 soup = BeautifulSoup(src, "lxml")
+# TODO:
+"""
+1) optimize functions (parameters passing)
+2) get info about monsters' resists
+3) get info about monsters' subspecies
+"""
 
 
 def parse_beast_class(soup_obj):
