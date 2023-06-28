@@ -20,5 +20,8 @@ soup = BeautifulSoup(src, "lxml")
 beast_class = soup.find("div", {'data-source': "Класс"}).find("a").get("title")
 beast_variation = soup.find("div", {'data-source': "Вид"}).find("a").get("title")
 beast_type = soup.find("div", {'data-source': "Тип"}).find("div").text
-print(beast_type)
+beast_location = soup.find("div", {'data-source': "Местонахождение"}).find("div").text
+beast_tactic = soup.find("div", {'data-source': "Тактика"}).find("div").text
+# beast_weakness = soup.find("div", {'data-source': "Уязвимость"}).find("div").find_all("a")
+
 
