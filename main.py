@@ -4,7 +4,7 @@ import random
 import csv
 from config import headers  # my "user agent" and "accept"
 
-URL = "https://vedmak.fandom.com/wiki/%D0%93%D0%BE%D0%BB%D0%B5%D0%BC"
+URL = "https://vedmak.fandom.com/wiki/%D0%A1%D0%B5%D1%80%D0%B5%D0%B1%D1%80%D0%B8%D1%81%D1%82%D1%8B%D0%B9_%D0%B2%D0%B0%D1%81%D0%B8%D0%BB%D0%B8%D1%81%D0%BA"
 
 proxy_tor = "socks5://127.0.0.1:" + str(random.randint(9052, 9139))
 proxies = {"https": proxy_tor}
@@ -51,10 +51,18 @@ def parse_beast_type(soup_obj):
 
 
 def parse_beast_location(soup_obj):
-    try:
+    beast_location = soup_obj.find("aside",
+                                   class_="portable-infobox pi-background "
+                                          "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
+    if beast_location is None:
         beast_location = soup_obj.find("aside",
                                        class_="portable-infobox pi-background "
-                                              "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
+                                              "pi-border-color pi-theme-Кровь-и-Вино pi-layout-default")
+    if beast_location is None:
+        beast_location = soup_obj.find("aside",
+                                       class_="portable-infobox pi-background "
+                                              "pi-border-color pi-theme-Каменные-сердца pi-layout-default")
+    try:
         beast_location = beast_location.find("div", {'data-source': "Местонахождение"}).find("div").text
         return beast_location
     except AttributeError:
@@ -75,16 +83,18 @@ def parse_beast_tactic(soup_obj):
 
 def parse_beast_weakness(soup_obj):
     try:
-        res = []
+        res = ''
         beast_weakness = soup_obj.find("aside",
                                        class_="portable-infobox pi-background "
                                               "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
         beast_weakness = beast_weakness.find("div", {'data-source': "Уязвимость"}).find("div").find_all("a")
-        for weak in beast_weakness:
-            res.append(weak.text)
+        for i in range(len(beast_weakness)):
+            res += beast_weakness[i].text
+            if i != len(beast_weakness) - 1:
+                res += ', '
         return res
     except AttributeError:
         return "Нет данных об уязвимостях"
 
 
-print(parse_beast_class(soup))
+print(parse_beast_location(soup))
