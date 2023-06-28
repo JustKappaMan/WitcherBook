@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import random
 import csv
-from config import headers
+from config import headers  # my "user agent" and "accept"
 
 URL = "https://vedmak.fandom.com/wiki/Ignis_Fatuus"
 
@@ -18,5 +18,7 @@ with open("index.html", "r") as file:
 
 soup = BeautifulSoup(src, "lxml")
 beast_class = soup.find("div", {'data-source': "Класс"}).find("a").get("title")
-print(beast_class)
+beast_variation = soup.find("div", {'data-source': "Вид"}).find("a").get("title")
+beast_type = soup.find("div", {'data-source': "Тип"}).find("div").text
+print(beast_type)
 
