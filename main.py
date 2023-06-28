@@ -18,11 +18,14 @@ soup = BeautifulSoup(src, "lxml")
 
 
 def parse_beast_class(soup_obj):
-    beast_class = soup_obj.find("aside",
-                                class_="portable-infobox pi-background "
-                                       "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-    beast_class = beast_class.find("div", {'data-source': "Класс"}).find("a").get("title")
-    return beast_class
+    try:
+        beast_class = soup_obj.find("aside",
+                                    class_="portable-infobox pi-background "
+                                           "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
+        beast_class = beast_class.find("div", {'data-source': "Класс"}).find("a").get("title")
+        return beast_class
+    except AttributeError:
+        return "Нет данных о классе"
 
 
 def parse_beast_variation(soup_obj):
@@ -37,19 +40,25 @@ def parse_beast_variation(soup_obj):
 
 
 def parse_beast_type(soup_obj):
-    beast_type = soup_obj.find("aside",
-                               class_="portable-infobox pi-background "
-                                      "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-    beast_type = beast_type.find("div", {'data-source': "Тип"}).find("div").text
-    return beast_type
+    try:
+        beast_type = soup_obj.find("aside",
+                                   class_="portable-infobox pi-background "
+                                          "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
+        beast_type = beast_type.find("div", {'data-source': "Тип"}).find("div").text
+        return beast_type
+    except AttributeError:
+        return "Нет данных о типе"
 
 
 def parse_beast_location(soup_obj):
-    beast_location = soup_obj.find("aside",
-                                   class_="portable-infobox pi-background "
-                                          "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-    beast_location = beast_location.find("div", {'data-source': "Местонахождение"}).find("div").text
-    return beast_location
+    try:
+        beast_location = soup_obj.find("aside",
+                                       class_="portable-infobox pi-background "
+                                              "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
+        beast_location = beast_location.find("div", {'data-source': "Местонахождение"}).find("div").text
+        return beast_location
+    except AttributeError:
+        return "Нет данных об обитании"
 
 
 def parse_beast_tactic(soup_obj):
@@ -65,11 +74,17 @@ def parse_beast_tactic(soup_obj):
 
 
 def parse_beast_weakness(soup_obj):
-    res = []
-    beast_weakness = soup_obj.find("div", {'data-source': "Уязвимость"}).find("div").find_all("a")
-    for weak in beast_weakness:
-        res.append(weak.text)
-    return res
+    try:
+        res = []
+        beast_weakness = soup_obj.find("aside",
+                                       class_="portable-infobox pi-background "
+                                              "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
+        beast_weakness = beast_weakness.find("div", {'data-source': "Уязвимость"}).find("div").find_all("a")
+        for weak in beast_weakness:
+            res.append(weak.text)
+        return res
+    except AttributeError:
+        return "Нет данных об уязвимостях"
 
 
-print(parse_beast_variation(soup))
+print(parse_beast_class(soup))
