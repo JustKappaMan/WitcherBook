@@ -17,12 +17,13 @@ FILENAME = 'WitcherBook'
 # soup = BeautifulSoup(src, "lxml")
 # TODO:
 """
-1) make main function to request page with monsters and collect info about every one
-2) write this information to 'WitcherBook' csv file
+1) make main function to request page with monsters and collect info about every one +
+2) write this information to 'WitcherBook' csv file + 
 """
 
 
-def parse_monster_characteristic(soup_obj, parameter):    # class, variation, species, type, location, tactic, resist, weakness
+def parse_monster_characteristic(soup_obj,
+                                 parameter):  # class, variation, species, type, location, tactic, resist, weakness
     try:
         res = ''
         monster_characteristic = soup_obj.find("aside",
@@ -45,7 +46,7 @@ def parse_monster_characteristic(soup_obj, parameter):    # class, variation, sp
         else:
             monster_characteristic = monster_characteristic.find("div", {'data-source': parameter}).find("div")
             for el in monster_characteristic:
-                res += el.text
+                res += ', ' + el.text
             return res
     except AttributeError:
         return "Неизвестно"
@@ -73,7 +74,8 @@ def get_monster_name_and_link(soup_obj):
 def file_write_headers(filename):
     with open(f"{filename}.csv", "w", encoding="utf-8-sig") as file:
         writer = csv.writer(file, delimiter=';')
-        writer.writerow(("Имя","Класс","Вид","Подвиды","Тип","Местонахождение","Тактика","Иммунитет", "Уязвимость"))
+        writer.writerow(
+            ("Имя", "Класс", "Вид", "Подвиды", "Тип", "Местонахождение", "Тактика", "Иммунитет", "Уязвимость"))
 
 
 def file_write_data(filename, soup_obj):
@@ -81,31 +83,42 @@ def file_write_data(filename, soup_obj):
         writer = csv.writer(file, delimiter=';')
         writer.writerow(
             (parse_monster_characteristic(soup_obj, "Имя"),
-            parse_monster_characteristic(soup_obj, "Класс"),
-            parse_monster_characteristic(soup_obj, "Вид"),
-            parse_monster_characteristic(soup_obj, "Подвиды"),
-            parse_monster_characteristic(soup_obj, "Тип"),
-            parse_monster_characteristic(soup_obj, "Местонахождение"),
-            parse_monster_characteristic(soup_obj, "Тактика"),
-            parse_monster_characteristic(soup_obj, "Иммунитет"),
-            parse_monster_characteristic(soup_obj, "Уязвимость")
-            )
+             parse_monster_characteristic(soup_obj, "Класс"),
+             parse_monster_characteristic(soup_obj, "Вид"),
+             parse_monster_characteristic(soup_obj, "Подвиды"),
+             parse_monster_characteristic(soup_obj, "Тип"),
+             parse_monster_characteristic(soup_obj, "Местонахождение"),
+             parse_monster_characteristic(soup_obj, "Тактика"),
+             parse_monster_characteristic(soup_obj, "Иммунитет"),
+             parse_monster_characteristic(soup_obj, "Уязвимость")
+             )
         )
 
 
 def main():
-    url_first_part = '/'.join(URL.split('/')[:3])   # https://vedmak.fandom.com
+    url_first_part = '/'.join(URL.split('/')[:3])  # https://vedmak.fandom.com
     file_write_headers(filename=FILENAME)
     try:
         response = requests.get(url=URL, headers=headers, proxies=proxies)
-        soup = BeautifulSoup(response.text)
+        soup = BeautifulSoup(response.text, "lxml")
         links = get_monster_name_and_link(soup_obj=soup)
         print("Перешли на главную страницу\nПолучили ссылки на страницы с монстрами")
         for monster_name, monster_link in links.items():
-            monster_page = requests.get(url=url_first_part+monster_link, headers=headers, proxies=proxies)
+            monster_page = requests.get(url=url_first_part + monster_link, headers=headers, proxies=proxies)
             monster = BeautifulSoup(monster_page.text)
             file_write_data(filename=FILENAME, soup_obj=monster)
-    except
+            print(f"Спарсили информацию о монстре {monster_name}")
+    except requests.exceptions.ProxyError:
+        print("\nНе удалось подключиться к прокси-серверу, попробуем другой\n")
+    except requests.exceptions.ConnectionError:
+        print("\nНе удалось подключиться к прокси-серверу, попробуем другой\n")
+    except requests.exceptions.ReadTimeout:
+        print("\nПревышен таймаут подключения к серверу, попробуем другой\n")
+    except AttributeError:
+        print("\nАйпишник в бане :с\n")
+
+
+main()
 # def parse_beast_variation(soup_obj):
 #     try:
 #         beast_variation = soup_obj.find("aside",
