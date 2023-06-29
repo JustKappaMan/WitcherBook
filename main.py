@@ -105,7 +105,7 @@ def main():
         print("Перешли на главную страницу\nПолучили ссылки на страницы с монстрами")
         for monster_name, monster_link in links.items():
             monster_page = requests.get(url=url_first_part + monster_link, headers=headers, proxies=proxies)
-            monster = BeautifulSoup(monster_page.text)
+            monster = BeautifulSoup(monster_page.text, "lxml")
             file_write_data(filename=FILENAME, soup_obj=monster)
             print(f"Спарсили информацию о монстре {monster_name}")
     except requests.exceptions.ProxyError:
