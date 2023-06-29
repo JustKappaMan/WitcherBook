@@ -11,10 +11,6 @@ proxies = {"https": proxy_tor}
 
 FILENAME = 'WitcherBook'
 
-# with open("index.html", "r") as file:
-#     src = file.read()
-
-# soup = BeautifulSoup(src, "lxml")
 # TODO:
 """
 1) make main function to request page with monsters and collect info about every one +
@@ -22,8 +18,7 @@ FILENAME = 'WitcherBook'
 """
 
 
-def parse_monster_characteristic(soup_obj,
-                                 parameter):  # class, variation, species, type, location, tactic, resist, weakness
+def parse_monster_characteristic(soup_obj, parameter):
     try:
         res = ''
         monster_characteristic = soup_obj.find("aside",
@@ -46,8 +41,8 @@ def parse_monster_characteristic(soup_obj,
         else:
             monster_characteristic = monster_characteristic.find("div", {'data-source': parameter}).find("div")
             for el in monster_characteristic:
-                res += ', ' + el.text
-            return res
+                res += " " + el.text
+            return res.strip()
     except AttributeError:
         return "Неизвестно"
 
@@ -66,9 +61,6 @@ def get_monster_name_and_link(soup_obj):
             else:
                 links[monster.get("title")] = (monster.get("href"))
     return links
-
-
-# print(len(get_monster_name_and_link(soup_obj=soup)))
 
 
 def file_write_headers(filename):
@@ -118,87 +110,5 @@ def main():
         print("\nАйпишник в бане :с\n")
 
 
-main()
-# def parse_beast_variation(soup_obj):
-#     try:
-#         beast_variation = soup_obj.find("aside",
-#                                         class_="portable-infobox pi-background "
-#                                                "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-#         beast_variation = beast_variation.find("div", {'data-source': "Вид"}).find("a").get("title")
-#         return beast_variation
-#     except AttributeError:
-#         return "Нет данных о виде"
-#
-#
-# def parse_beast_type(soup_obj):
-#     try:
-#         beast_type = soup_obj.find("aside",
-#                                    class_="portable-infobox pi-background "
-#                                           "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-#         beast_type = beast_type.find("div", {'data-source': "Тип"}).find("div").text
-#         return beast_type
-#     except AttributeError:
-#         return "Нет данных о типе"
-#
-#
-# def parse_beast_location(soup_obj):
-#     beast_location = soup_obj.find("aside",
-#                                    class_="portable-infobox pi-background "
-#                                           "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-#     if beast_location is None:
-#         beast_location = soup_obj.find("aside",
-#                                        class_="portable-infobox pi-background "
-#                                               "pi-border-color pi-theme-Кровь-и-Вино pi-layout-default")
-#     if beast_location is None:
-#         beast_location = soup_obj.find("aside",
-#                                        class_="portable-infobox pi-background "
-#                                               "pi-border-color pi-theme-Каменные-сердца pi-layout-default")
-#     try:
-#         beast_location = beast_location.find("div", {'data-source': "Местонахождение"}).find("div").text
-#         return beast_location
-#     except AttributeError:
-#         return "Нет данных об обитании"
-#
-#
-# def parse_beast_tactic(soup_obj):
-#     try:
-#         beast_tactic = soup_obj.find("aside",
-#                                      class_="portable-infobox pi-background "
-#                                             "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-#         beast_tactic = beast_tactic.find("div", {'data-source': "Тактика"}).find("div").text
-#         return beast_tactic
-#     except AttributeError:
-#         return "Нет данных о тактике"
-# # there may be no tactic (exception AttributeError)
-#
-#
-# def parse_beast_resist(soup_obj):
-#     try:
-#         beast_resist = soup_obj.find("aside",
-#                                      class_="portable-infobox pi-background "
-#                                             "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-#         if beast_resist is None:
-#             beast_resist = soup_obj.find("aside",
-#                                            class_="portable-infobox pi-background "
-#                                                   "pi-border-color pi-theme-Каменные-сердца pi-layout-default")
-#         beast_resist = beast_resist.find("div", {'data-source': "Иммунитет"}).find("div").text
-#
-#         return beast_resist
-#     except AttributeError:
-#         return "Нет данных об иммунитете"
-#
-#
-# def parse_beast_weakness(soup_obj):
-#     try:
-#         res = ''
-#         beast_weakness = soup_obj.find("aside",
-#                                        class_="portable-infobox pi-background "
-#                                               "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-#         beast_weakness = beast_weakness.find("div", {'data-source': "Уязвимость"}).find("div").find_all("a")
-#         for i in range(len(beast_weakness)):
-#             res += beast_weakness[i].text
-#             if i != len(beast_weakness) - 1:
-#                 res += ', '
-#         return res
-#     except AttributeError:
-#         return "Нет данных об уязвимостях"
+if __name__ == '__main__':
+    main()
