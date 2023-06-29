@@ -17,9 +17,8 @@ with open("index.html", "r") as file:
 soup = BeautifulSoup(src, "lxml")
 # TODO:
 """
-1) optimize functions (parameters passing) +?
-2) get info about monsters' resists +
-3) get info about monsters' subspecies + 
+1) make main function to request page with monsters and collect info about every one
+2) write this information to 'WitcherBook' csv file
 """
 
 
@@ -50,6 +49,28 @@ def parse_monster_characteristic(soup_obj, parameter):    # class, variation, sp
             return res
     except AttributeError:
         return "Неизвестно"
+
+
+def get_monster_link(soup_obj):
+    links = []
+    allmonsters = soup_obj.find_all("div", class_="category-page__members-wrapper")
+    for i in range(1, len(allmonsters)):
+        monsters_curr_letter = allmonsters[i].find("ul")
+        for monsters in monsters_curr_letter:
+            monster = monsters.find("a")
+            if str(monster) == '-1':
+                pass
+            elif monster.get("title") == "Монстры (Ведьмак 3)":
+                pass
+            else:
+                links.append(monster.get("href"))
+    return links
+
+
+# print(get_monster_link(soup_obj=soup))
+
+
+def main():
 
 
 # def parse_beast_variation(soup_obj):
@@ -135,27 +156,3 @@ def parse_monster_characteristic(soup_obj, parameter):    # class, variation, sp
 #         return res
 #     except AttributeError:
 #         return "Нет данных об уязвимостях"
-
-def get_monster_link(soup_obj):
-    links = []
-    allmonsters = soup_obj.find_all("div", class_="category-page__members-wrapper")
-    for i in range(1, len(allmonsters)):
-        monsters_curr_letter = allmonsters[i].find("ul")
-        for monsters in monsters_curr_letter:
-            monster = monsters.find("a")
-            if str(monster) == '-1':
-                pass
-            elif monster.get("title") == "Монстры (Ведьмак 3)":
-                pass
-            else:
-                links.append(monster.get("href"))
-    return links
-
-
-print(get_monster_link(soup_obj=soup))
-    # print(links.find("li").find("a").get("title"))
-    # for li in links:
-    #     print(li.find("div", class_="category-page__member-left"))
-
-
-# print(allmonsters[2].find("li").find("a").get("title"))
