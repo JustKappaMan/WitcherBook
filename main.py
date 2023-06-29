@@ -11,10 +11,10 @@ proxies = {"https": proxy_tor}
 
 FILENAME = 'WitcherBook'
 
-with open("index.html", "r") as file:
-    src = file.read()
+# with open("index.html", "r") as file:
+#     src = file.read()
 
-soup = BeautifulSoup(src, "lxml")
+# soup = BeautifulSoup(src, "lxml")
 # TODO:
 """
 1) make main function to request page with monsters and collect info about every one
@@ -67,18 +67,33 @@ def get_monster_name_and_link(soup_obj):
     return links
 
 
-print(len(get_monster_name_and_link(soup_obj=soup)))
+# print(len(get_monster_name_and_link(soup_obj=soup)))
 
 
-# def main():
-#     try:
-#         response = requests.get(url=URL, headers=headers, proxies=proxies)
-#         soup = BeautifulSoup(response.text)
-#         links = get_monster_link(soup_obj=soup)
-#         print("Перешли на главную страницу\nПолучили ссылки на страницы с монстрами")
-#
-#     except
+def file_write_headers(filename):
+    with open(f"{filename}.csv", "w", encoding="utf-8-sig") as file:
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow(("Имя","Класс","Вид","Подвиды","Тип","Местонахождение","Тактика","Иммунитет", "Уязвимость"))
 
+
+def file_write_data(filename, name, m_class, variation, species, m_type, location, tactic, resist, weakness):
+    with open(f"{filename}.csv", "a", encoding="utf-8-sig") as file:
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow((name, m_class, variation, species, m_type, location, tactic, resist, weakness))
+
+
+def main():
+    url_first_part = '/'.join(URL.split('/')[:3])
+    try:
+        response = requests.get(url=URL, headers=headers, proxies=proxies)
+        soup = BeautifulSoup(response.text)
+        links = get_monster_name_and_link(soup_obj=soup)
+        print("Перешли на главную страницу\nПолучили ссылки на страницы с монстрами")
+        for name, link in links.items():
+            monster_page = requests.get(url=url_first_part+link, headers=headers, proxies=proxies)
+            monster = BeautifulSoup(monster_page.text)
+
+    except
 # def parse_beast_variation(soup_obj):
 #     try:
 #         beast_variation = soup_obj.find("aside",
