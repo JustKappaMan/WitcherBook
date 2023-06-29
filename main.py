@@ -13,8 +13,8 @@ FILENAME = 'WitcherBook'
 
 # TODO:
 """
-1) make main function to request page with monsters and collect info about every one +
-2) write this information to 'WitcherBook' csv file + 
+1) don't write empty rows to file +
+2) asyncio?
 """
 
 
@@ -73,17 +73,18 @@ def file_write_headers(filename):
 def file_write_data(filename, soup_obj):
     with open(f"{filename}.csv", "a", encoding="utf-8-sig") as file:
         writer = csv.writer(file, delimiter=';')
-        writer.writerow(
-            (parse_monster_characteristic(soup_obj, "Имя"),
-             parse_monster_characteristic(soup_obj, "Класс"),
-             parse_monster_characteristic(soup_obj, "Вид"),
-             parse_monster_characteristic(soup_obj, "Подвиды"),
-             parse_monster_characteristic(soup_obj, "Тип"),
-             parse_monster_characteristic(soup_obj, "Местонахождение"),
-             parse_monster_characteristic(soup_obj, "Тактика"),
-             parse_monster_characteristic(soup_obj, "Иммунитет"),
-             parse_monster_characteristic(soup_obj, "Уязвимость")
-             )
+        if parse_monster_characteristic(soup_obj, "Имя"):
+            writer.writerow(
+                (parse_monster_characteristic(soup_obj, "Имя"),
+                 parse_monster_characteristic(soup_obj, "Класс"),
+                 parse_monster_characteristic(soup_obj, "Вид"),
+                 parse_monster_characteristic(soup_obj, "Подвиды"),
+                 parse_monster_characteristic(soup_obj, "Тип"),
+                 parse_monster_characteristic(soup_obj, "Местонахождение"),
+                 parse_monster_characteristic(soup_obj, "Тактика"),
+                 parse_monster_characteristic(soup_obj, "Иммунитет"),
+                 parse_monster_characteristic(soup_obj, "Уязвимость")
+                 )
         )
 
 
