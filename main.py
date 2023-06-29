@@ -4,7 +4,7 @@ import random
 import csv
 from config import headers  # my "user agent" and "accept"
 
-URL = "https://vedmak.fandom.com/wiki/%D0%9F%D1%80%D0%B8%D0%B7%D1%80%D0%B0%D0%BA_%D1%81_%D0%BA%D0%B0%D1%80%D1%82%D0%B8%D0%BD%D1%8B"
+URL = "https://vedmak.fandom.com/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9C%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%8B_(%D0%92%D0%B5%D0%B4%D1%8C%D0%BC%D0%B0%D0%BA_3)"
 
 proxy_tor = "socks5://127.0.0.1:" + str(random.randint(9052, 9139))
 proxies = {"https": proxy_tor}
@@ -136,6 +136,26 @@ def parse_monster_characteristic(soup_obj, parameter):    # class, variation, sp
 #     except AttributeError:
 #         return "Нет данных об уязвимостях"
 
+def get_monster_link(soup_obj):
+    links = []
+    allmonsters = soup_obj.find_all("div", class_="category-page__members-wrapper")
+    for i in range(1, len(allmonsters)):
+        monsters_curr_letter = allmonsters[i].find("ul")
+        for monsters in monsters_curr_letter:
+            monster = monsters.find("a")
+            if str(monster) == '-1':
+                pass
+            elif monster.get("title") == "Монстры (Ведьмак 3)":
+                pass
+            else:
+                links.append(monster.get("href"))
+    return links
 
-print(parse_monster_characteristic(soup, "Иммунитет"))
 
+print(get_monster_link(soup_obj=soup))
+    # print(links.find("li").find("a").get("title"))
+    # for li in links:
+    #     print(li.find("div", class_="category-page__member-left"))
+
+
+# print(allmonsters[2].find("li").find("a").get("title"))
