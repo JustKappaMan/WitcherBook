@@ -51,8 +51,8 @@ def parse_monster_characteristic(soup_obj, parameter):    # class, variation, sp
         return "Неизвестно"
 
 
-def get_monster_link(soup_obj):
-    links = []
+def get_monster_name_and_link(soup_obj):
+    links = {}
     allmonsters = soup_obj.find_all("div", class_="category-page__members-wrapper")
     for i in range(1, len(allmonsters)):
         monsters_curr_letter = allmonsters[i].find("ul")
@@ -63,15 +63,21 @@ def get_monster_link(soup_obj):
             elif monster.get("title") == "Монстры (Ведьмак 3)":
                 pass
             else:
-                links.append(monster.get("href"))
+                links[monster.get("title")] = (monster.get("href"))
     return links
 
 
-# print(get_monster_link(soup_obj=soup))
+print(len(get_monster_name_and_link(soup_obj=soup)))
 
 
-def main():
-
+# def main():
+#     try:
+#         response = requests.get(url=URL, headers=headers, proxies=proxies)
+#         soup = BeautifulSoup(response.text)
+#         links = get_monster_link(soup_obj=soup)
+#         print("Перешли на главную страницу\nПолучили ссылки на страницы с монстрами")
+#
+#     except
 
 # def parse_beast_variation(soup_obj):
 #     try:
