@@ -11,12 +11,6 @@ proxies = {"https": proxy_tor}
 
 FILENAME = 'WitcherBook'
 
-# TODO:
-"""
-1) don't write empty rows to file +
-2) asyncio?
-"""
-
 
 def parse_monster_characteristic(soup_obj, parameter):
     try:
@@ -85,7 +79,7 @@ def file_write_data(filename, soup_obj):
                  parse_monster_characteristic(soup_obj, "Иммунитет"),
                  parse_monster_characteristic(soup_obj, "Уязвимость")
                  )
-        )
+            )
 
 
 def main():
@@ -101,14 +95,9 @@ def main():
             monster = BeautifulSoup(monster_page.text, "lxml")
             file_write_data(filename=FILENAME, soup_obj=monster)
             print(f"Спарсили информацию о монстре {monster_name}")
-    except requests.exceptions.ProxyError:
+    except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
+            AttributeError):
         print("\nНе удалось подключиться к прокси-серверу, попробуем другой\n")
-    except requests.exceptions.ConnectionError:
-        print("\nНе удалось подключиться к прокси-серверу, попробуем другой\n")
-    except requests.exceptions.ReadTimeout:
-        print("\nПревышен таймаут подключения к серверу, попробуем другой\n")
-    except AttributeError:
-        print("\nАйпишник в бане :с\n")
 
 
 if __name__ == '__main__':
