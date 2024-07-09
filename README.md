@@ -1,13 +1,40 @@
-# WitcherBook
-Parser for collecting data about "The Witcher 3: Wild Hunt" (and DLCs) monsters from Witcher Wiki (Russian)  
-This is my Python mini-project for practicing Python itself and web-scraping using BeautifulSoup and requests modules.
-# Idea
-I enjoy playing "The Witcher 3: Wild Hunt", this is one of my favourite games.
-Recently I started to learn Python and understood that best way to ptactice programming language is to apply it in real project.
-So I came up with the idea that your hobbies and your study projects have to be united in order to learn quicker and to enjoy your studying.
-# Files in this repo
-You can see 4 files here excepting README:  
-*main.py* - basically main python file with all the code to parse data about monsters  
-*gitignore* - my gitignore project file that contains all the python cache, DS_Store files and file named *config.py*. My User Agent and Accept are stored in this file (you know, it's not good to show them to everyone). I import them to *main.py*  
-*WitcherBook.csv* - this is the result of my code execution   
-*WitcherBook.xlsx* - this is the very same, but Microsoft Excel book  
+# О репозитории
+
+Этот репозиторий - мой пет-проект на Python, представляющий из себя парсер для сбора данных о чудовищах из игры "Ведьмак 3: Дикая Охота" и ее DLC с сайта Ведьмак Вики.
+
+# В этом репозитории
+- *src* - директория с исходным кодом парсера
+- *results* - директория с примерами результатов выполнения программы - файлами .csv и .xlsx
+- *requirements.txt* - зависимости проекта
+- *.gitignore* - ну с ним все ясно
+
+# Как работает 
+
+## Задействованные библиотеки
+
+В проекте использовались такие библиотеки, как BeautifulSoup, requests, lxml, CSV.
+
+Первые 3 необходимы для отправки запроса на веб-страницу и получения ответа от нее в формате HTML для последующего ее разбора по тэгам. То есть:
+1. Отправили запрос на страничку
+2. Получили ответ
+3. Распарсили текст ответа
+4. Теперь мы можем осуществлять поиск содержимого странички по тэгам
+
+То есть мы на главной страничке собираем данные об именах (названиях) всех чудовищ, далее отправляем поочередно запросы на URL странички, посвященной конкретному чудовищу, собираем всю необходимую нам информацию и записываем данные об очереднеом монстре как новую строку выходного файла формата CSV.
+
+## Прокси и обход блокировок 
+
+Несмотря на отстутствие блокировок со стороны сайта по IP-адресу, в проекте продемонстрировано использование прокси.
+
+В качестве прокси-сервера выступает браузер Tor. 
+
+Подробнее про настройку конфигурационного файла Tor для этих целей можно почитать в этой статье на Хабре - https://habr.com/ru/companies/ruvds/articles/486688/
+
+## Как запустить?
+1. Устанавливаем браузер Tor
+2. Читаем статью на Хабре по ссылке выше про настройку Tor как прокси-сервера
+3. **ВКЛЮЧАЕМ TOR** (ничего не будет работать, если браузер не запущен)
+4. Ну а дальше стандартные процедуры
+   - `git clone https://github.com/semyonf1l1pp0v/WitcherBook.git`
+   - `pip install -r requirements.txt`
+   - `python src/main.py`
