@@ -1,104 +1,81 @@
+import csv
+from random import randint
+from urllib.parse import urlparse
+
 import requests
 from bs4 import BeautifulSoup
-import random
-import csv
-from config import headers  # my "user agent" and "accept"
-
-URL = "https://vedmak.fandom.com/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9C%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%8B_(%D0%92%D0%B5%D0%B4%D1%8C%D0%BC%D0%B0%D0%BA_3)"
-
-proxy_tor = "socks5://127.0.0.1:" + str(random.randint(9052, 9139))
-proxies = {"https": proxy_tor}
-
-FILENAME = 'WitcherBook'
-
-
-def parse_monster_characteristic(soup_obj, parameter):
-    try:
-        res = ''
-        monster_characteristic = soup_obj.find("aside",
-                                               class_="portable-infobox pi-background "
-                                                      "pi-border-color pi-theme-Ведьмак-3 pi-layout-default")
-        if monster_characteristic is None:
-            monster_characteristic = soup_obj.find("aside",
-                                                   class_="portable-infobox pi-background "
-                                                          "pi-border-color pi-theme-Каменные-сердца pi-layout-default")
-        if monster_characteristic is None:
-            monster_characteristic = soup_obj.find("aside",
-                                                   class_="portable-infobox pi-background "
-                                                          "pi-border-color pi-theme-Кровь-и-Вино pi-layout-default")
-        if monster_characteristic is None:
-            return
-        if parameter == 'Имя':
-            monster_characteristic = monster_characteristic.find("h2").text
-            res = monster_characteristic
-            return res
-        else:
-            monster_characteristic = monster_characteristic.find("div", {'data-source': parameter}).find("div")
-            for el in monster_characteristic:
-                res += " " + el.text
-            return res.strip()
-    except AttributeError:
-        return "Неизвестно"
-
-
-def get_monster_name_and_link(soup_obj):
-    links = {}
-    allmonsters = soup_obj.find_all("div", class_="category-page__members-wrapper")
-    for i in range(1, len(allmonsters)):
-        monsters_curr_letter = allmonsters[i].find("ul")
-        for monsters in monsters_curr_letter:
-            monster = monsters.find("a")
-            if str(monster) == '-1':
-                pass
-            elif monster.get("title") == "Монстры (Ведьмак 3)":
-                pass
-            else:
-                links[monster.get("title")] = (monster.get("href"))
-    return links
-
-
-def file_write_headers(filename):
-    with open(f"{filename}.csv", "w", encoding="utf-8-sig") as file:
-        writer = csv.writer(file, delimiter=';')
-        writer.writerow(
-            ("Имя", "Класс", "Вид", "Подвиды", "Тип", "Местонахождение", "Тактика", "Иммунитет", "Уязвимость"))
-
-
-def file_write_data(filename, soup_obj):
-    with open(f"{filename}.csv", "a", encoding="utf-8-sig") as file:
-        writer = csv.writer(file, delimiter=';')
-        if parse_monster_characteristic(soup_obj, "Имя"):
-            writer.writerow(
-                (parse_monster_characteristic(soup_obj, "Имя"),
-                 parse_monster_characteristic(soup_obj, "Класс"),
-                 parse_monster_characteristic(soup_obj, "Вид"),
-                 parse_monster_characteristic(soup_obj, "Подвиды"),
-                 parse_monster_characteristic(soup_obj, "Тип"),
-                 parse_monster_characteristic(soup_obj, "Местонахождение"),
-                 parse_monster_characteristic(soup_obj, "Тактика"),
-                 parse_monster_characteristic(soup_obj, "Иммунитет"),
-                 parse_monster_characteristic(soup_obj, "Уязвимость")
-                 )
-            )
+from requests.exceptions import ProxyError, ConnectionError, ReadTimeout
 
 
 def main():
-    url_first_part = '/'.join(URL.split('/')[:3])  # https://vedmak.fandom.com
-    file_write_headers(filename=FILENAME)
+    url = "https://vedmak.fandom.com/wiki/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%8F:%D0%9C%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%8B_(%D0%92%D0%B5%D0%B4%D1%8C%D0%BC%D0%B0%D0%BA_3)"
+    url_parts = urlparse(url)
+    url_origin = f"{url_parts.scheme}://{url_parts.hostname}"
+
+    proxies = {"https": f"socks5://127.0.0.1:{randint(9052, 9139)}"}
+
+    database = []
     try:
-        response = requests.get(url=URL, headers=headers, proxies=proxies)
+        response = requests.get(url=url, proxies=proxies)
         soup = BeautifulSoup(response.text, "lxml")
-        links = get_monster_name_and_link(soup_obj=soup)
-        print("Перешли на главную страницу\nПолучили ссылки на страницы с монстрами")
-        for monster_name, monster_link in links.items():
-            monster_page = requests.get(url=url_first_part + monster_link, headers=headers, proxies=proxies)
-            monster = BeautifulSoup(monster_page.text, "lxml")
-            file_write_data(filename=FILENAME, soup_obj=monster)
-            print(f"Спарсили информацию о монстре {monster_name}")
-    except (requests.exceptions.ProxyError, requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
-            AttributeError):
-        print("\nНе удалось подключиться к прокси-серверу, попробуем другой\n")
+        names_and_links = parse_monsters_names_and_links(soup=soup)
+        print("Получили ссылки с главной страницы с монстрами")
+
+        for name, link in names_and_links.items():
+            response = requests.get(url=f"{url_origin}{link}", proxies=proxies)
+            soup = BeautifulSoup(response.text, "lxml")
+            database.append({"Имя": name} | parse_monster_details(soup=soup))
+            print(f"Получили информацию о монстре {name}")
+    except (ProxyError, ConnectionError, ReadTimeout):
+        print("Не удалось подключиться к прокси-серверу, попробуем другой")
+
+    if database:
+        with open("WitcherBook.csv", "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=database[0].keys(), delimiter=";")
+            writer.writeheader()
+            writer.writerows(database)
 
 
-if __name__ == '__main__':
+def parse_monsters_names_and_links(soup: BeautifulSoup) -> dict[str, str]:
+    """
+    Парсинг имён монстров и относительных ссылок на их страницы с главной страницы.
+    """
+    return {a.get("title"): a.get("href") for a in soup.css.select("div.category-page__member-left a")}
+
+
+def normalize_multiline_details(node) -> str:
+    """
+    Приведение солянки из текста, <a> и <br> в строку вида `thing1, thing2, thing3`.
+    """
+    text = []
+    for el in node.children:
+        if isinstance(el, str):
+            text.append(el)
+        elif el.name == "br":
+            text.append(", ")
+        else:
+            text.append(el.get_text())
+    return "".join(text)
+
+
+def parse_monster_details(
+    soup: BeautifulSoup,
+    details: tuple[str] = ("Класс", "Вид", "Подвиды", "Тип", "Местонахождение", "Тактика", "Иммунитет", "Уязвимость"),
+) -> dict[str, str]:
+    """
+    Парсинг данных о конкретном монстре.
+    """
+    result = {}
+    for detail in details:
+        if node := soup.css.select_one(f"div[data-source='{detail}'] .pi-data-value"):
+            if node.css.select_one("br"):
+                result |= {detail: normalize_multiline_details(node)}
+            else:
+                result |= {detail: node.get_text()}
+        else:
+            result |= {detail: "Неизвестно"}
+    return result
+
+
+if __name__ == "__main__":
     main()
